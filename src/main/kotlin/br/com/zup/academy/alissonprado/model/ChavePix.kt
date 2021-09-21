@@ -1,16 +1,18 @@
 package br.com.zup.academy.alissonprado.model
 
+import br.com.zup.academy.alissonprado.validation.ValidUUID
 import br.com.zup.academy.alissonprado.converter.CryptoConverter
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
 class ChavePix(
-    @field:NotBlank
+    @field:NotBlank @field:ValidUUID
     @Column(nullable = false)
     @Convert(converter = CryptoConverter::class)
     val idClienteBanco: String,
@@ -26,7 +28,11 @@ class ChavePix(
     @field:NotBlank @field:Size(max = 77)
     @Column(nullable = false, unique = true)
     @Convert(converter = CryptoConverter::class)
-    val chave: String
+    val chave: String,
+
+    @field:Valid
+    @Embedded
+    val conta: ContaAssociada?
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

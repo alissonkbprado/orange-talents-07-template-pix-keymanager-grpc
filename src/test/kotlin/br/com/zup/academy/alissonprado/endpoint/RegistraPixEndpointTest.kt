@@ -6,6 +6,7 @@ import br.com.zup.academy.alissonprado.TipoChave
 import br.com.zup.academy.alissonprado.TipoConta
 import br.com.zup.academy.alissonprado.httpClient.consultaCartao.ConsultaContaClient
 import br.com.zup.academy.alissonprado.model.ChavePix
+import br.com.zup.academy.alissonprado.model.ContaAssociada
 import br.com.zup.academy.alissonprado.model.TipoChave.EMAIL
 import br.com.zup.academy.alissonprado.model.TipoConta.CONTA_CORRENTE
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
@@ -106,7 +107,15 @@ internal class RegistraPixEndpointTest(
             idClienteBanco = clientId,
             tipoConta = CONTA_CORRENTE,
             tipoChave = EMAIL,
-            chave = chave
+            chave = chave,
+            conta = ContaAssociada(
+                instituicaoNome = "Itau",
+                instituicaoIspb = "265874",
+                nomeDoTitular = "Teste",
+                cpfDoTitular = "00000000000",
+                agencia = "0001",
+                numeroDaConta = "1234"
+            )
         )
 
         repository.save(chavePix)
@@ -199,14 +208,16 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.idClienteBanco: must not be blank", this.message)
+            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.idClienteBanco: must match \"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\$\"", this.message)
         }
     }
 
     @Test
-    fun `nao deve cadastrar com idClienteBanco invalido`() {
+    fun `nao deve cadastrar com idClienteBanco UUID invalido`() {
+        // Padrão valido: "[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+
         // Adicionar um valor no Banco
-        val clientId = "1234"
+        val clientId = "5260263c-a3c1-4727-ae32-3bdb2538841"
         val chave = "teste@teste.com"
 
         // Realiza a requisição e guarda o erro
@@ -224,7 +235,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: INVALID_ARGUMENT: Id passado para consulta incorreto.", this.message)
+            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.idClienteBanco: must match \"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\$\"", this.message)
         }
     }
 
@@ -381,7 +392,7 @@ internal class RegistraPixEndpointTest(
                 RegistraPixRequest.newBuilder()
                     .setIdClienteBanco(clientId)
                     .setTipoConta(TipoConta.CONTA_CORRENTE)
-                    .setTipoChave(TipoChave.CPF)
+                    .setTipoChave(TipoChave.CELULAR)
                     .setChave(chave)
                     .build()
             )
@@ -407,7 +418,7 @@ internal class RegistraPixEndpointTest(
                 RegistraPixRequest.newBuilder()
                     .setIdClienteBanco(clientId)
                     .setTipoConta(TipoConta.CONTA_CORRENTE)
-                    .setTipoChave(TipoChave.CPF)
+                    .setTipoChave(TipoChave.CELULAR)
                     .setChave(chave)
                     .build()
             )
@@ -433,7 +444,7 @@ internal class RegistraPixEndpointTest(
                 RegistraPixRequest.newBuilder()
                     .setIdClienteBanco(clientId)
                     .setTipoConta(TipoConta.CONTA_CORRENTE)
-                    .setTipoChave(TipoChave.CPF)
+                    .setTipoChave(TipoChave.EMAIL)
                     .setChave(chave)
                     .build()
             )
@@ -453,7 +464,7 @@ internal class RegistraPixEndpointTest(
                 RegistraPixRequest.newBuilder()
                     .setIdClienteBanco(clientId)
                     .setTipoConta(TipoConta.CONTA_CORRENTE)
-                    .setTipoChave(TipoChave.CPF)
+                    .setTipoChave(TipoChave.EMAIL)
                     .setChave(chave)
                     .build()
             )

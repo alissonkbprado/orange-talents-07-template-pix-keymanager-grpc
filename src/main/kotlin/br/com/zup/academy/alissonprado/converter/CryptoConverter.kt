@@ -1,6 +1,7 @@
 package br.com.zup.academy.alissonprado.converter
 
-import br.com.zup.academy.alissonprado.Exception.ApiErroException
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Value
 import io.micronaut.http.HttpStatus
 import java.nio.charset.StandardCharsets
@@ -40,7 +41,7 @@ class CryptoConverter : AttributeConverter<String, String> {
             c.init(Cipher.ENCRYPT_MODE, chave, GCMParameterSpec(TAG_LENGTH_BIT, IV))
             String(Base64 .getEncoder().encode(c.doFinal(value.toByteArray())), StandardCharsets.UTF_8)
         } catch (e: Exception) {
-            throw ApiErroException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao tentar Encriptar.")
+            throw StatusRuntimeException(Status.INTERNAL.withDescription("Falha ao tentar Encriptar."))
         }
     }
 
@@ -56,7 +57,7 @@ class CryptoConverter : AttributeConverter<String, String> {
             c.init(Cipher.DECRYPT_MODE, chave, GCMParameterSpec(TAG_LENGTH_BIT, IV))
             String(c.doFinal(Base64.getDecoder().decode(dbData.toByteArray())), StandardCharsets.UTF_8)
         } catch (e: Exception) {
-            throw ApiErroException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao tentar Desencriptar.")
+            throw StatusRuntimeException(Status.INTERNAL.withDescription("Falha ao tentar Desencriptar."))
         }
     }
 

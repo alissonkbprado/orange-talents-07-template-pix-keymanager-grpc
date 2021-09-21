@@ -2,30 +2,29 @@ package br.com.zup.academy.alissonprado.annotation
 
 import br.com.zup.academy.alissonprado.endpoint.RegistraPixDto
 import br.com.zup.academy.alissonprado.model.TipoChave
-import io.grpc.Status
-import io.grpc.StatusRuntimeException
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
 import io.micronaut.validation.validator.constraints.ConstraintValidatorContext
+import io.micronaut.validation.validator.constraints.EmailValidator
 import jakarta.inject.Singleton
+import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator
 import javax.validation.Constraint
-import javax.validation.ConstraintViolationException
 import kotlin.annotation.AnnotationTarget.*
 
 @MustBeDocumented
-@Target(CLASS, FIELD, CONSTRUCTOR)
+@Target(CLASS, FIELD, CONSTRUCTOR, TYPE)
 @Retention(AnnotationRetention.RUNTIME)
-@Constraint(validatedBy = [PixPatternValidator::class])
-annotation class PixPattern(
+@Constraint(validatedBy = [ValidPixValidator::class])
+annotation class ValidPix(
     val message: String = "Chave com formato inválido."
 )
 
 @Singleton
-class PixPatternValidator : ConstraintValidator<PixPattern, RegistraPixDto> {
+class ValidPixValidator : ConstraintValidator<ValidPix, RegistraPixDto> {
 
     override fun isValid(
         value: RegistraPixDto?,
-        annotationMetadata: AnnotationValue<PixPattern>,
+        annotationMetadata: AnnotationValue<ValidPix>,
         context: ConstraintValidatorContext
     ): Boolean {
         if (value?.tipoChave == null) {
@@ -42,4 +41,5 @@ class PixPatternValidator : ConstraintValidator<PixPattern, RegistraPixDto> {
             }
         }
     }
+
 }

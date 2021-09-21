@@ -22,9 +22,7 @@ class ResgistraPixService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun valida(@Valid registraPixDto: RegistraPixDto): ChavePix {
-        return registraPixDto.toModel()
-    }
+    fun valida(@Valid registraPixDto: RegistraPixDto) {}
 
     fun registra(request: RegistraPixRequest): String {
 
@@ -35,16 +33,28 @@ class ResgistraPixService(
             request.chave
         )
 
-        val chavePix = this.valida(registraPixDto)
+        this.valida(registraPixDto)
 
         // Verifica se a chave já está cadastrada no Banco de Dados
-        if (repository.existsByChave(chavePix.chave)) {
+        if (repository.existsByChave(request.chave)) {
             logger.info("Chave Pix register attempted fail (ALREADY_EXISTS): ${request.idClienteBanco.replaceAfter("-","***")} ${request.chave}")
             throw ChaveCadastradaException()
         }
 
         // Realiza consulta HTTP GET a ERP do Itau
-        consultaCartaoService.Consulta(request)
+        val httpResponse = consultaCartaoService.Consulta(request)
+
+        var chave = registraPixDto.chave
+        if (registraPixDto.tipoChave == TipoChave.ALEATORIA)
+            chave = UUID.randomUUID().toString()
+
+        val chavePix = ChavePix(
+            idClienteBanco = registraPixDto.idClienteBanco,
+            tipoChave = registraPixDto.tipoChave,
+            tipoConta = registraPixDto.tipoConta,
+            chave = chave,
+            conta = httpResponse.body().toModel()
+        )
 
         repository.save(chavePix)
 

@@ -1,6 +1,13 @@
 micronaut:
   application:
     name: keymanager
+
+grpc:
+  server:
+    port: ${SERVER_PORT:50051}
+    keep-alive-time: 1h
+    max-inbound-message-size: 1024
+
 datasources:
   default:
     url: ${DB_URL:`jdbc:mysql://localhost:3306/keymanager?createDatabaseIfNotExist=TRUE`}
