@@ -1,18 +1,15 @@
 package br.com.zup.academy.alissonprado.endpoint
 
-import br.com.zup.academy.alissonprado.Exception.ChaveCadastradaException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.RegistraPixResponse
 import br.com.zup.academy.alissonprado.RegistraPixServiceGrpc
+import br.com.zup.academy.alissonprado.handler.ErrorAroundHandler
 import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauCliente
-import io.grpc.Status
-import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
-import io.micronaut.http.client.exceptions.HttpClientException
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
-import javax.validation.ConstraintViolationException
 
+@ErrorAroundHandler
 @Singleton
 class RegistraPixEndpoint(
     val service: ResgistraPixService,
@@ -25,51 +22,12 @@ class RegistraPixEndpoint(
         logger.info(
             "Request registraPix received: idClienteBanco: ${request.idClienteBanco.replaceAfter("-", "***")}"
         )
+        // Chama função onde valida, consulta ERP do Itaú e persiste dados no Banco
+        val chavePix = service.registra(request)
 
-        try {
-            // Chama função onde valida, consulta ERP do Itaú e persiste dados no Banco
-            val chavePix = service.registra(request)
+        val response = RegistraPixResponse.newBuilder().setIdPix(chavePix).build()
 
-            val response = RegistraPixResponse.newBuilder().setIdPix(chavePix).build()
-
-            responseObserver?.onNext(response)
-
-        } catch (e: ConstraintViolationException) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription(e.localizedMessage)
-                    .asRuntimeException()
-            )
-            return
-        } catch (e: IllegalArgumentException) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription("TipoConta ou TipoChave com valor inválido")
-                    .asRuntimeException()
-            )
-            return
-        } catch (e: ChaveCadastradaException) {
-            responseObserver.onError(
-                Status.ALREADY_EXISTS
-                    .withDescription("Valor de chave informado já está registrado.")
-                    .asRuntimeException()
-            )
-            return
-        } catch (e: StatusRuntimeException) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-            return
-        } catch (e: HttpClientException) {
-            responseObserver.onError(
-                Status.INTERNAL
-                    .withDescription(e.message)
-                    .asRuntimeException()
-            )
-            return
-        }
+        responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
 }

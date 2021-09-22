@@ -39,6 +39,7 @@ class ResgistraPixService(
         if (repository.existsByChave(request.chave)) {
             logger.info("Chave Pix register attempted fail (ALREADY_EXISTS): ${request.idClienteBanco.replaceAfter("-","***")} ${request.chave}")
             throw ChaveCadastradaException()
+
         }
 
         // Realiza consulta HTTP GET a ERP do Itau

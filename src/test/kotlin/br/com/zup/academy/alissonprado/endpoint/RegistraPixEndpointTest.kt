@@ -138,7 +138,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.ALREADY_EXISTS.code, status.code)
-            assertEquals("ALREADY_EXISTS: Valor de chave informado já está registrado.", this.message)
+            assertEquals("Valor de chave informado já está registrado", status.description)
         }
     }
 
@@ -161,10 +161,10 @@ internal class RegistraPixEndpointTest(
 
         // Validações
         with(error) {
-            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
             assertEquals(
-                "INVALID_ARGUMENT: INVALID_ARGUMENT: Não encontrados dados do cartão com a instituição financeira.",
-                this.message
+                "Não encontrados dados do cartão com a instituição financeira",
+                status.description
             )
         }
     }
@@ -190,8 +190,8 @@ internal class RegistraPixEndpointTest(
         with(error) {
             assertEquals(Status.INTERNAL.code, status.code)
             assertEquals(
-                "INTERNAL: Não foi possível consultar os dados do cartão com a instituição financeira.",
-                message
+                "Não foi possível consultar os dados do cartão com a instituição financeira.",
+                status.description
             )
         }
     }
@@ -215,8 +215,8 @@ internal class RegistraPixEndpointTest(
 
         // Validações
         with(error) {
-            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: INVALID_ARGUMENT: Valor de CPF da chave diferente do que está cadastrado na instituição financeira.", this.message)
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Valor de CPF da chave diferente do que está cadastrado na instituição financeira", status.description)
         }
     }
 
@@ -237,7 +237,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.idClienteBanco: must match \"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\$\"", this.message)
+            assertEquals("valida.registraPixDto.idClienteBanco: Formato de UUID invalido", status.description)
         }
     }
 
@@ -260,7 +260,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.idClienteBanco: must match \"[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\$\"", this.message)
+            assertEquals("valida.registraPixDto.idClienteBanco: Formato de UUID invalido", status.description)
         }
     }
 
@@ -280,7 +280,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: TipoConta ou TipoChave com valor inválido", this.message)
+            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
         }
     }
 
@@ -301,7 +301,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: TipoConta ou TipoChave com valor inválido", this.message)
+            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
         }
     }
 
@@ -321,7 +321,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: TipoConta ou TipoChave com valor inválido", this.message)
+            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
         }
     }
 
@@ -345,7 +345,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: TipoConta ou TipoChave com valor inválido", this.message)
+            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
         }
     }
 
@@ -369,7 +369,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto.chave: size must be between 0 and 77", this.message)
+            assertEquals("valida.registraPixDto.chave: size must be between 0 and 77", status.description)
         }
     }
 
@@ -393,7 +393,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto: Chave com formato inválido.", this.message)
+            assertEquals("valida.registraPixDto: Chave com formato inválido.", status.description)
         }
     }
 
@@ -417,7 +417,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto: Chave com formato inválido.", this.message)
+            assertEquals("valida.registraPixDto: Chave com formato inválido.", status.description)
         }
     }
 
@@ -443,7 +443,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto: Chave com formato inválido.", this.message)
+            assertEquals("valida.registraPixDto: Chave com formato inválido.", status.description)
         }
     }
 
@@ -469,7 +469,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto: Chave com formato inválido.", this.message)
+            assertEquals("valida.registraPixDto: Chave com formato inválido.", status.description)
         }
     }
 
@@ -495,7 +495,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("INVALID_ARGUMENT: valida.registraPixDto: Chave com formato inválido.", this.message)
+            assertEquals("valida.registraPixDto: Chave com formato inválido.", status.description)
         }
     }
 

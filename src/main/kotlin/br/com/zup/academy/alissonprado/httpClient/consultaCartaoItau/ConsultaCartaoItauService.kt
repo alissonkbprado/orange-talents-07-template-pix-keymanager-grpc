@@ -1,5 +1,7 @@
 package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
 
+import br.com.zup.academy.alissonprado.Exception.CpfInconsistenteItauException
+import br.com.zup.academy.alissonprado.Exception.IdNaoEncontradoItauException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.TipoChave
 import io.grpc.Status
@@ -7,7 +9,6 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientException
-import io.micronaut.http.client.exceptions.HttpClientResponseException
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
 
@@ -35,7 +36,7 @@ class ConsultaCartaoItauService(
                         )
                     }"
                 )
-                throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Não encontrados dados do cartão com a instituição financeira."))
+                throw IdNaoEncontradoItauException()
             }
 
             // Se a chave for o CPF deve ser o mesmo valor presenta no ERP Itau
@@ -45,7 +46,7 @@ class ConsultaCartaoItauService(
                             "${request.idClienteBanco.replaceAfter("-", "***")} - " +
                             "${request.chave}"
                 )
-                throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Valor de CPF da chave diferente do que está cadastrado na instituição financeira."))
+                throw CpfInconsistenteItauException()
             }
 
             return responseConsultaErpItau

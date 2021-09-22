@@ -1,6 +1,6 @@
 package br.com.zup.academy.alissonprado.model
 
-import br.com.zup.academy.alissonprado.validation.ValidUUID
+import br.com.zup.academy.alissonprado.validation.ValidaUUID
 import br.com.zup.academy.alissonprado.converter.CryptoConverter
 import java.time.LocalDateTime
 import java.util.*
@@ -12,7 +12,7 @@ import javax.validation.constraints.Size
 
 @Entity
 class ChavePix(
-    @field:NotBlank @field:ValidUUID
+    @field:NotBlank @field:ValidaUUID
     @Column(nullable = false)
     @Convert(converter = CryptoConverter::class)
     val idClienteBanco: String,

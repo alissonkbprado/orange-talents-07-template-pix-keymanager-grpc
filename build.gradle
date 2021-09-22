@@ -47,6 +47,7 @@ dependencies {
 
     implementation 'org.jasypt:jasypt:1.9.3'
 
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("com.h2database:h2")
     testImplementation("org.mockito:mockito-core:3.0.8")
