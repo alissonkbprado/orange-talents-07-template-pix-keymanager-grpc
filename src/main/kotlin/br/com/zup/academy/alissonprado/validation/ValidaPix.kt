@@ -5,9 +5,7 @@ import br.com.zup.academy.alissonprado.model.TipoChave
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
 import io.micronaut.validation.validator.constraints.ConstraintValidatorContext
-import io.micronaut.validation.validator.constraints.EmailValidator
 import jakarta.inject.Singleton
-import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator
 import javax.validation.Constraint
 import kotlin.annotation.AnnotationTarget.*
 
@@ -15,16 +13,16 @@ import kotlin.annotation.AnnotationTarget.*
 @Target(CLASS, FIELD, CONSTRUCTOR, TYPE)
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [ValidPixValidator::class])
-annotation class ValidPix(
+annotation class ValidaPix(
     val message: String = "Chave com formato inválido."
 )
 
 @Singleton
-class ValidPixValidator : ConstraintValidator<ValidPix, RegistraPixDto> {
+class ValidPixValidator : ConstraintValidator<ValidaPix, RegistraPixDto> {
 
     override fun isValid(
         value: RegistraPixDto?,
-        annotationMetadata: AnnotationValue<ValidPix>,
+        annotationMetadata: AnnotationValue<ValidaPix>,
         context: ConstraintValidatorContext
     ): Boolean {
         if (value?.tipoChave == null) {

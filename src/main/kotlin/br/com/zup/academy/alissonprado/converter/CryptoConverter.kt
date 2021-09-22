@@ -3,7 +3,6 @@ package br.com.zup.academy.alissonprado.converter
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Value
-import io.micronaut.http.HttpStatus
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.util.*
@@ -27,7 +26,7 @@ import javax.persistence.Converter
 @Converter
 class CryptoConverter : AttributeConverter<String, String> {
     @Value("\${encryption_key}")
-    private lateinit var key: String
+    private lateinit var encription_key: String
 
     /**
      * Realiza a encriptação do dado e codifica para Base64
@@ -35,11 +34,11 @@ class CryptoConverter : AttributeConverter<String, String> {
      * @return
      */
     override fun convertToDatabaseColumn(value: String): String {
-        val chave: Key = SecretKeySpec(key?.toByteArray(), "AES")
+        val chave: Key = SecretKeySpec(encription_key?.toByteArray(), "AES")
         return try {
             val c = Cipher.getInstance(ALGORITMO)
             c.init(Cipher.ENCRYPT_MODE, chave, GCMParameterSpec(TAG_LENGTH_BIT, IV))
-            String(Base64 .getEncoder().encode(c.doFinal(value.toByteArray())), StandardCharsets.UTF_8)
+            String(Base64.getEncoder().encode(c.doFinal(value.toByteArray())), StandardCharsets.UTF_8)
         } catch (e: Exception) {
             throw StatusRuntimeException(Status.INTERNAL.withDescription("Falha ao tentar Encriptar."))
         }
@@ -51,7 +50,8 @@ class CryptoConverter : AttributeConverter<String, String> {
      * @return
      */
     override fun convertToEntityAttribute(dbData: String): String {
-        val chave: Key = SecretKeySpec(key!!.toByteArray(), "AES")
+
+        val chave: Key = SecretKeySpec(encription_key!!.toByteArray(), "AES")
         return try {
             val c = Cipher.getInstance(ALGORITMO)
             c.init(Cipher.DECRYPT_MODE, chave, GCMParameterSpec(TAG_LENGTH_BIT, IV))

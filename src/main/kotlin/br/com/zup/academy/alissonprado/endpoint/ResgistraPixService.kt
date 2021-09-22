@@ -2,7 +2,7 @@ package br.com.zup.academy.alissonprado.endpoint
 
 import br.com.zup.academy.alissonprado.Exception.ChaveCadastradaException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
-import br.com.zup.academy.alissonprado.httpClient.consultaCartao.ConsultaCartaoService
+import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaCartaoItauService
 import br.com.zup.academy.alissonprado.model.ChavePix
 import br.com.zup.academy.alissonprado.model.TipoChave
 import br.com.zup.academy.alissonprado.model.TipoConta
@@ -17,7 +17,7 @@ import javax.validation.Valid
 @Singleton
 class ResgistraPixService(
     val repository: ChavePixRepository,
-    val consultaCartaoService: ConsultaCartaoService
+    val consultaCartaoItauService: ConsultaCartaoItauService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -42,7 +42,7 @@ class ResgistraPixService(
         }
 
         // Realiza consulta HTTP GET a ERP do Itau
-        val httpResponse = consultaCartaoService.Consulta(request)
+        val httpResponse = consultaCartaoItauService.Consulta(request)
 
         var chave = registraPixDto.chave
         if (registraPixDto.tipoChave == TipoChave.ALEATORIA)

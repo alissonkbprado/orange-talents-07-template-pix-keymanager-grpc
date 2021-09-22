@@ -1,4 +1,4 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartao
+package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
 
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.TipoChave
@@ -10,23 +10,23 @@ import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
-import java.util.*
 
 @Singleton
-class ConsultaCartaoService(
-    val consultaContaClient: ConsultaContaClient
+class ConsultaCartaoItauService(
+    val consultaContaClient: ConsultaContaItauCliente
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun Consulta(request: RegistraPixRequest): HttpResponse<ConsultaContaResponse> {
+    fun Consulta(request: RegistraPixRequest): HttpResponse<ConsultaContaItauResponse> {
         try {
             // Consulta ERP Itau
-            val responseConsultaErpItau: HttpResponse<ConsultaContaResponse> =
+            val responseConsultaErpItau: HttpResponse<ConsultaContaItauResponse> =
                 consultaContaClient.consultaConta(request.idClienteBanco, request.tipoConta.toString())
 
             // Se retornar vazio, não encontrou dados no ERP Itau
             if (responseConsultaErpItau.status == HttpStatus.NOT_FOUND) {
+//            if (responseConsultaErpItau == null) {
                 logger.warn(
                     "Não encontrados dados do cartão com a instituição financeira. ${
                         request.idClienteBanco.replaceAfter(
@@ -50,9 +50,6 @@ class ConsultaCartaoService(
 
             return responseConsultaErpItau
 
-        } catch (e: HttpClientResponseException) {
-            logger.warn("Id passado para consulta incorreto. ${request.idClienteBanco}")
-            throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Id passado para consulta incorreto."))
         } catch (e: HttpClientException) {
             logger.error("Não foi possível acessar a ERP do Itaú. ${e.localizedMessage}")
             throw HttpClientException("Não foi possível consultar os dados do cartão com a instituição financeira.")

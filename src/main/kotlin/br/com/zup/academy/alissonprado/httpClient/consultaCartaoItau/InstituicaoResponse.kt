@@ -1,4 +1,4 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartao
+package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
 
 import io.micronaut.core.annotation.Introspected
 

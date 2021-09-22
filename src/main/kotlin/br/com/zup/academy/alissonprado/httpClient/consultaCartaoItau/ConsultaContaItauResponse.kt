@@ -1,10 +1,10 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartao
+package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
 
 import br.com.zup.academy.alissonprado.model.ContaAssociada
 import io.micronaut.core.annotation.Introspected
 
 @Introspected
-data class ConsultaContaResponse(
+data class ConsultaContaItauResponse(
     val tipo: String,
     val instituicao: InstituicaoResponse,
     val agencia: String,

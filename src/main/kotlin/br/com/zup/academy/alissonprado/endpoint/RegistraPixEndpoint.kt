@@ -4,7 +4,7 @@ import br.com.zup.academy.alissonprado.Exception.ChaveCadastradaException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.RegistraPixResponse
 import br.com.zup.academy.alissonprado.RegistraPixServiceGrpc
-import br.com.zup.academy.alissonprado.httpClient.consultaCartao.ConsultaContaClient
+import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauCliente
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
@@ -16,7 +16,7 @@ import javax.validation.ConstraintViolationException
 @Singleton
 class RegistraPixEndpoint(
     val service: ResgistraPixService,
-    val consultaContaClient: ConsultaContaClient
+    val consultaContaClient: ConsultaContaItauCliente
 ) : RegistraPixServiceGrpc.RegistraPixServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -69,17 +69,7 @@ class RegistraPixEndpoint(
                     .asRuntimeException()
             )
             return
-        } catch (e: Exception) {
-            logger.warn("Internal error: ${e.message}")
-            e.printStackTrace()
-            responseObserver.onError(
-                Status.INTERNAL
-                    .withDescription("Erro interno não esperado.")
-                    .asRuntimeException()
-            )
-            return
         }
-
         responseObserver?.onCompleted()
     }
 }
