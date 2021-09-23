@@ -1,9 +1,10 @@
 package br.com.zup.academy.alissonprado.endpoint.removePix
 
-import br.com.zup.academy.alissonprado.*
+import br.com.zup.academy.alissonprado.RemovePixRequest
+import br.com.zup.academy.alissonprado.RemovePixResponse
+import br.com.zup.academy.alissonprado.RemovePixServiceGrpc
 import br.com.zup.academy.alissonprado.handler.ErrorAroundHandler
 import io.grpc.stub.StreamObserver
-import io.micronaut.validation.Validated
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory
 @ErrorAroundHandler
 @Singleton
 class RemovePixEndpoint(
-   @Inject private val service: RemovePixService
+   @Inject val service: RemovePixService
 ) : RemovePixServiceGrpc.RemovePixServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

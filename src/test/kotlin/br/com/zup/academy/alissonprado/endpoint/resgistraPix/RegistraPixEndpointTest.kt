@@ -10,13 +10,18 @@ import br.com.zup.academy.alissonprado.model.ContaAssociada
 import br.com.zup.academy.alissonprado.model.TipoChave.EMAIL
 import br.com.zup.academy.alissonprado.model.TipoConta.CONTA_CORRENTE
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
+import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import io.micronaut.context.annotation.Factory
+import io.micronaut.grpc.annotation.GrpcChannel
+import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -510,5 +515,16 @@ internal class RegistraPixEndpointTest(
     @MockBean(ConsultaContaItauClient::class)
     fun consultaContaClienteItauMock(): ConsultaContaItauClient {
         return Mockito.mock(ConsultaContaItauClient::class.java)
+    }
+}
+
+@Factory
+class ClientsFactory {
+
+    // channel -> Canal com os dados da requisição
+    // GrpcServerChannel.NAME -> Para retornar os dados da conexão, ip e porta gerados pelo contexto de testes do Microunaut
+    @Singleton
+    fun blockingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel): RegistraPixServiceGrpc.RegistraPixServiceBlockingStub {
+        return RegistraPixServiceGrpc.newBlockingStub(channel)
     }
 }

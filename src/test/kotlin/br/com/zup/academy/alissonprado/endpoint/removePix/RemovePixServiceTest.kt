@@ -62,7 +62,7 @@ internal class RemovePixServiceTest(
     @Test
     fun `deve dar erro ao tentar remover chave nao cadastrada`() {
 
-        val erro = assertThrows<ChaveNaoPertenceAoUsuarioException> {
+        val erro = assertThrows<ChaveNaoEncontradaException> {
             service.remove(
                 RemovePixDto(
                     idPix = UUID.randomUUID().toString(),
