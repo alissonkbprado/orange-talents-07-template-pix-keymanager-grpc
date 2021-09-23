@@ -1,6 +1,6 @@
 package br.com.zup.academy.alissonprado.annotation
 
-import br.com.zup.academy.alissonprado.endpoint.RegistraPixDto
+import br.com.zup.academy.alissonprado.endpoint.registraPix.RegistraPixDto
 import br.com.zup.academy.alissonprado.model.TipoChave
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator

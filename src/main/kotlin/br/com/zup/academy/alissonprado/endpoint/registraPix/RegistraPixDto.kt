@@ -1,4 +1,4 @@
-package br.com.zup.academy.alissonprado.endpoint
+package br.com.zup.academy.alissonprado.endpoint.registraPix
 
 import br.com.zup.academy.alissonprado.annotation.ValidaPix
 import br.com.zup.academy.alissonprado.model.TipoChave

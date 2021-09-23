@@ -4,8 +4,6 @@ import br.com.zup.academy.alissonprado.Exception.CpfInconsistenteItauException
 import br.com.zup.academy.alissonprado.Exception.IdNaoEncontradoItauException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.TipoChave
-import io.grpc.Status
-import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientException
@@ -14,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 @Singleton
 class ConsultaCartaoItauService(
-    val consultaContaClient: ConsultaContaItauCliente
+    val consultaContaClient: ConsultaContaItauClient
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -25,9 +23,8 @@ class ConsultaCartaoItauService(
             val responseConsultaErpItau: HttpResponse<ConsultaContaItauResponse> =
                 consultaContaClient.consultaConta(request.idClienteBanco, request.tipoConta.toString())
 
-            // Se retornar vazio, não encontrou dados no ERP Itau
+            // Se retornar Status 404 NOT_FOUND, não encontrou dados no ERP Itau
             if (responseConsultaErpItau.status == HttpStatus.NOT_FOUND) {
-//            if (responseConsultaErpItau == null) {
                 logger.warn(
                     "Não encontrados dados do cartão com a instituição financeira. ${
                         request.idClienteBanco.replaceAfter(

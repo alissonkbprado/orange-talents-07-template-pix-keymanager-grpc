@@ -1,10 +1,9 @@
-package br.com.zup.academy.alissonprado.endpoint
+package br.com.zup.academy.alissonprado.endpoint.registraPix
 
 import br.com.zup.academy.alissonprado.RegistraPixRequest
 import br.com.zup.academy.alissonprado.RegistraPixResponse
 import br.com.zup.academy.alissonprado.RegistraPixServiceGrpc
 import br.com.zup.academy.alissonprado.handler.ErrorAroundHandler
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauCliente
 import io.grpc.stub.StreamObserver
 import jakarta.inject.Singleton
 import org.slf4j.LoggerFactory
@@ -12,8 +11,7 @@ import org.slf4j.LoggerFactory
 @ErrorAroundHandler
 @Singleton
 class RegistraPixEndpoint(
-    val service: ResgistraPixService,
-    val consultaContaClient: ConsultaContaItauCliente
+    val service: RegistraPixService
 ) : RegistraPixServiceGrpc.RegistraPixServiceImplBase() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

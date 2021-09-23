@@ -1,12 +1,9 @@
-package br.com.zup.academy.alissonprado.endpoint
+package br.com.zup.academy.alissonprado.endpoint.resgistraPix
 
-import br.com.zup.academy.alissonprado.RegistraPixRequest
-import br.com.zup.academy.alissonprado.RegistraPixServiceGrpc
-import br.com.zup.academy.alissonprado.TipoChave
-import br.com.zup.academy.alissonprado.TipoConta
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauCliente
+import br.com.zup.academy.alissonprado.*
+import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauClient
 import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauResponse
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.InstituicaoResponse
+import br.com.zup.academy.alissonprado.httpClient.InstituicaoResponse
 import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.TitularResponse
 import br.com.zup.academy.alissonprado.model.ChavePix
 import br.com.zup.academy.alissonprado.model.ContaAssociada
@@ -35,7 +32,7 @@ internal class RegistraPixEndpointTest(
 ) {
 
     @field:Inject
-    lateinit var itauCliente: ConsultaContaItauCliente
+    lateinit var itauCliente: ConsultaContaItauClient
 
     companion object {
         val CLIENTE_ID = UUID.randomUUID().toString()
@@ -66,14 +63,14 @@ internal class RegistraPixEndpointTest(
             assertNotNull(idPix)
         }
 
-        val optionalChavePix = repository.findByIdPix(response.idPix)
+        val chavePix = repository.findByIdPix(response.idPix)
 
-        assertTrue(optionalChavePix.isPresent)
-        assertEquals(response.idPix, optionalChavePix.get().idPix)
-        assertEquals(CLIENTE_ID, optionalChavePix.get().idClienteBanco)
-        assertEquals(TipoConta.CONTA_CORRENTE.toString(), optionalChavePix.get().tipoConta.toString())
-        assertEquals(TipoChave.EMAIL.toString(), optionalChavePix.get().tipoChave.toString())
-        assertEquals("teste@teste.com", optionalChavePix.get().chave)
+        assertTrue(chavePix != null)
+        assertEquals(response.idPix, chavePix?.idPix)
+        assertEquals(CLIENTE_ID, chavePix?.idClienteBanco)
+        assertEquals(TipoConta.CONTA_CORRENTE.toString(), chavePix?.tipoConta.toString())
+        assertEquals(TipoChave.EMAIL.toString(), chavePix?.tipoChave.toString())
+        assertEquals("teste@teste.com", chavePix?.chave)
     }
 
     @Test
@@ -91,14 +88,14 @@ internal class RegistraPixEndpointTest(
                 .build()
         )
 
-        val optionalChavePix = repository.findByIdPix(response.idPix)
+        val chavePix = repository.findByIdPix(response.idPix)
 
-        assertTrue(optionalChavePix.isPresent)
-        assertEquals(response.idPix, optionalChavePix.get().idPix)
-        assertEquals(CLIENTE_ID, optionalChavePix.get().idClienteBanco)
-        assertEquals(TipoConta.CONTA_CORRENTE.toString(), optionalChavePix.get().tipoConta.toString())
-        assertEquals(TipoChave.ALEATORIA.toString(), optionalChavePix.get().tipoChave.toString())
-        assertNotEquals("teste@teste.com", optionalChavePix.get().chave)
+        assertTrue(chavePix != null)
+        assertEquals(response.idPix, chavePix?.idPix)
+        assertEquals(CLIENTE_ID, chavePix?.idClienteBanco)
+        assertEquals(TipoConta.CONTA_CORRENTE.toString(), chavePix?.tipoConta.toString())
+        assertEquals(TipoChave.ALEATORIA.toString(), chavePix?.tipoChave.toString())
+        assertNotEquals("teste@teste.com", chavePix?.chave)
     }
 
     @Test
@@ -280,7 +277,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
+            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA", status.description)
         }
     }
 
@@ -301,7 +298,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
+            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA", status.description)
         }
     }
 
@@ -321,7 +318,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
+            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA", status.description)
         }
     }
 
@@ -345,7 +342,7 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("TipoConta ou TipoChave com valor inválido", status.description)
+            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA", status.description)
         }
     }
 
@@ -510,8 +507,8 @@ internal class RegistraPixEndpointTest(
     }
 
 
-    @MockBean(ConsultaContaItauCliente::class)
-    fun consultaContaClienteItauMock(): ConsultaContaItauCliente {
-        return Mockito.mock(ConsultaContaItauCliente::class.java)
+    @MockBean(ConsultaContaItauClient::class)
+    fun consultaContaClienteItauMock(): ConsultaContaItauClient {
+        return Mockito.mock(ConsultaContaItauClient::class.java)
     }
 }

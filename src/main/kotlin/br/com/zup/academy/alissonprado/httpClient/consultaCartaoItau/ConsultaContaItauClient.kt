@@ -7,7 +7,7 @@ import io.micronaut.http.annotation.QueryValue
 import io.micronaut.http.client.annotation.Client
 
 @Client("\${api_erp_itau}")
-interface ConsultaContaItauCliente {
+interface ConsultaContaItauClient {
 
     @Get(value = "/{clienteId}/contas?tipo={tipoConta}")
     fun consultaConta(

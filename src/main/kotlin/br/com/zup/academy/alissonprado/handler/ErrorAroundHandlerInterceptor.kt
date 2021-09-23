@@ -1,8 +1,6 @@
 package br.com.zup.academy.alissonprado.handler
 
-import br.com.zup.academy.alissonprado.Exception.ChaveCadastradaException
-import br.com.zup.academy.alissonprado.Exception.CpfInconsistenteItauException
-import br.com.zup.academy.alissonprado.Exception.IdNaoEncontradoItauException
+import br.com.zup.academy.alissonprado.Exception.*
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
@@ -31,16 +29,22 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                     .withDescription(ex.message)
                 is IllegalArgumentException -> Status.INVALID_ARGUMENT
                     .withCause(ex)
-                    .withDescription("TipoConta ou TipoChave com valor inválido")
+                    .withDescription(ex.message)
                 is ChaveCadastradaException -> Status.ALREADY_EXISTS
                     .withCause(ex)
                     .withDescription("Valor de chave informado já está registrado")
+                is ChaveNaoEncontradaException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription("Chave Pix não encontrada")
                 is IdNaoEncontradoItauException -> Status.FAILED_PRECONDITION
                     .withCause(ex)
                     .withDescription("Não encontrados dados do cartão com a instituição financeira")
                 is CpfInconsistenteItauException -> Status.FAILED_PRECONDITION
                     .withCause(ex)
                     .withDescription("Valor de CPF da chave diferente do que está cadastrado na instituição financeira")
+                is ChaveNaoPertenceAoUsuarioException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription("Chave Pix não encontrada ou não pertence ao usuario")
                 is StatusRuntimeException -> Status.INVALID_ARGUMENT
                     .withCause(ex)
                     .withDescription(ex.message)

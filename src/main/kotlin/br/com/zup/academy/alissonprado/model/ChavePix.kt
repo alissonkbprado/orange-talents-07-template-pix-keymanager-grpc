@@ -14,7 +14,6 @@ import javax.validation.constraints.Size
 class ChavePix(
     @field:NotBlank @field:ValidaUUID
     @Column(nullable = false)
-    @Convert(converter = CryptoConverter::class)
     val idClienteBanco: String,
 
     @field:NotNull @Enumerated(EnumType.STRING)

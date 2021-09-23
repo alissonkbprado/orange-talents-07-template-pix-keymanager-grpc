@@ -1,5 +1,6 @@
 package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
 
+import br.com.zup.academy.alissonprado.httpClient.InstituicaoResponse
 import br.com.zup.academy.alissonprado.model.ContaAssociada
 import io.micronaut.core.annotation.Introspected
 

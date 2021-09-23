@@ -10,6 +10,10 @@ service RegistraPixService {
   rpc registraPix (RegistraPixRequest) returns (RegistraPixResponse) {}
 }
 
+service RemovePixService {
+  rpc removePix (RemovePixRequest) returns (RemovePixResponse) {}
+}
+
 message RegistraPixRequest {
   string    idClienteBanco = 1;
   TipoConta tipoConta      = 2;
@@ -19,6 +23,15 @@ message RegistraPixRequest {
 
 message RegistraPixResponse {
   string idPix = 1;
+}
+
+message RemovePixRequest {
+  string    idPix = 1;
+  string    idClienteBanco = 2;
+}
+
+message RemovePixResponse {
+  string mensagem = 1;
 }
 
 enum TipoChave {
