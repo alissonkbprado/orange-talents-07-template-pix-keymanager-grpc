@@ -24,14 +24,18 @@ class ChavePix(
     @Column(nullable = false)
     val tipoConta: TipoConta,
 
+    @field:NotNull @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val tipoPessoa: TipoPessoa,
+
     @field:NotBlank @field:Size(max = 77)
     @Column(nullable = false, unique = true)
-    @Convert(converter = CryptoConverter::class)
-    val chave: String,
+//    @Convert(converter = CryptoConverter::class)
+    var chave: String,
 
     @field:Valid
     @Embedded
-    val conta: ContaAssociada?
+    val conta: ContaAssociada
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,9 +69,9 @@ class ChavePix(
         return result
     }
 
-    override fun toString(): String {
-        return "ChavePix(idClienteBanco='$idClienteBanco', tipoChave=$tipoChave, tipoConta=$tipoConta, chave=$chave, id=$id, idPix='$idPix', criadaEm=$criadaEm)"
+    fun adicionaChaveBancoCentral(key: String?) {
+        if (key != null) {
+            this.chave = key
+        }
     }
-
-
 }

@@ -3,10 +3,10 @@ package br.com.zup.academy.alissonprado.endpoint.removePix
 
 import br.com.zup.academy.alissonprado.RemovePixRequest
 import br.com.zup.academy.alissonprado.RemovePixServiceGrpc
-import br.com.zup.academy.alissonprado.model.ChavePix
-import br.com.zup.academy.alissonprado.model.ContaAssociada
-import br.com.zup.academy.alissonprado.model.TipoChave
-import br.com.zup.academy.alissonprado.model.TipoConta
+import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.RemoveChavePixBcbClient
+import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.dto.RemovePixKeyRequest
+import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.dto.RemovePixKeyResponse
+import br.com.zup.academy.alissonprado.model.*
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -14,13 +14,18 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest(transactional = false)
@@ -35,30 +40,67 @@ internal class RemovePixEndpointTest(
         val CHAVE = "teste@teste.com"
     }
 
+    @field:Inject
+    lateinit var bcbClient: RemoveChavePixBcbClient
+
+    var chavePix = ChavePix(
+        idClienteBanco = RemovePixServiceTest.CLIENTE_ID,
+        tipoConta = TipoConta.CONTA_CORRENTE,
+        tipoChave = TipoChave.EMAIL,
+        tipoPessoa = TipoPessoa.PESSOA_FISICA,
+        chave = RemovePixServiceTest.CHAVE,
+        conta = ContaAssociada(
+            instituicaoNome = "Itau",
+            instituicaoIspb = "265874",
+            nomeDoTitular = "Teste",
+            documentoDoTitular = "00000000000",
+            agencia = "0001",
+            numeroDaConta = "1234"
+        )
+    )
+
     @BeforeEach
     fun setUp() {
         repository.deleteAll()
+
+        chavePix = ChavePix(
+            idClienteBanco = RemovePixServiceTest.CLIENTE_ID,
+            tipoConta = TipoConta.CONTA_CORRENTE,
+            tipoChave = TipoChave.EMAIL,
+            tipoPessoa = TipoPessoa.PESSOA_FISICA,
+            chave = RemovePixServiceTest.CHAVE,
+            conta = ContaAssociada(
+                instituicaoNome = "Itau",
+                instituicaoIspb = "265874",
+                nomeDoTitular = "Teste",
+                documentoDoTitular = "00000000000",
+                agencia = "0001",
+                numeroDaConta = "1234"
+            )
+        )
     }
 
     @Test
     fun `deve remover chave`() {
         // Adiciona registro no banco
-        val chavePix = ChavePix(
-            idClienteBanco = CLIENTE_ID,
-            tipoConta = TipoConta.CONTA_CORRENTE,
-            tipoChave = TipoChave.EMAIL,
-            chave = CHAVE,
-            conta = ContaAssociada(
-                instituicaoNome = "Itau",
-                instituicaoIspb = "265874",
-                nomeDoTitular = "Teste",
-                cpfDoTitular = "00000000000",
-                agencia = "0001",
-                numeroDaConta = "1234"
+        val chavePixCadastrada = repository.save(chavePix)
+
+        Mockito.`when`(
+            bcbClient.remove(
+                chavePix.chave, RemovePixKeyRequest(
+                    key = chavePix.chave,
+                    participant = chavePix.conta.instituicaoIspb
+                )
+            )
+        ).thenReturn(
+            HttpResponse.ok(
+                RemovePixKeyResponse(
+                    key = chavePix.chave,
+                    participant = chavePix.conta.instituicaoIspb,
+                    deletedAt = LocalDateTime.now().toString()
+                )
             )
         )
-
-        val chavePixCadastrada = repository.save(chavePix)
 
         val response = grpcClient.removePix(
             RemovePixRequest.newBuilder()
@@ -77,12 +119,13 @@ internal class RemovePixEndpointTest(
             idClienteBanco = CLIENTE_ID,
             tipoConta = TipoConta.CONTA_CORRENTE,
             tipoChave = TipoChave.EMAIL,
+            tipoPessoa = TipoPessoa.PESSOA_FISICA,
             chave = CHAVE,
             conta = ContaAssociada(
                 instituicaoNome = "Itau",
                 instituicaoIspb = "265874",
                 nomeDoTitular = "Teste",
-                cpfDoTitular = "00000000000",
+                documentoDoTitular = "00000000000",
                 agencia = "0001",
                 numeroDaConta = "1234"
             )
@@ -92,12 +135,13 @@ internal class RemovePixEndpointTest(
             idClienteBanco = UUID.randomUUID().toString(),
             tipoConta = TipoConta.CONTA_CORRENTE,
             tipoChave = TipoChave.EMAIL,
+            tipoPessoa = TipoPessoa.PESSOA_FISICA,
             chave = "userB@teste.com",
             conta = ContaAssociada(
                 instituicaoNome = "Itau",
                 instituicaoIspb = "265874",
                 nomeDoTitular = "Teste",
-                cpfDoTitular = "00000000000",
+                documentoDoTitular = "00000000000",
                 agencia = "0001",
                 numeroDaConta = "1234"
             )
@@ -216,6 +260,11 @@ internal class RemovePixEndpointTest(
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
             assertTrue(status.description!!.contains("Formato de UUID invalido"))
         }
+    }
+
+    @MockBean(RemoveChavePixBcbClient::class)
+    fun cadastraChaveBcbMock(): RemoveChavePixBcbClient {
+        return Mockito.mock(RemoveChavePixBcbClient::class.java)
     }
 }
 

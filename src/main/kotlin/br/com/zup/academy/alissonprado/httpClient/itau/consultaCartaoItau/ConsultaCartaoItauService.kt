@@ -1,4 +1,4 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
+package br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau
 
 import br.com.zup.academy.alissonprado.Exception.CpfInconsistenteItauException
 import br.com.zup.academy.alissonprado.Exception.IdNaoEncontradoItauException
@@ -17,7 +17,7 @@ class ConsultaCartaoItauService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun Consulta(request: RegistraPixRequest): HttpResponse<ConsultaContaItauResponse> {
+    fun consulta(request: RegistraPixRequest): ConsultaContaItauResponse {
         try {
             // Consulta ERP Itau
             val responseConsultaErpItau: HttpResponse<ConsultaContaItauResponse> =
@@ -46,11 +46,11 @@ class ConsultaCartaoItauService(
                 throw CpfInconsistenteItauException()
             }
 
-            return responseConsultaErpItau
+            return responseConsultaErpItau.body()
 
         } catch (e: HttpClientException) {
             logger.error("Não foi possível acessar a ERP do Itaú. ${e.localizedMessage}")
-            throw HttpClientException("Não foi possível consultar os dados do cartão com a instituição financeira.")
+            throw HttpClientException("Não foi possível consultar os dados do cartão com o Itau.")
         }
     }
 }

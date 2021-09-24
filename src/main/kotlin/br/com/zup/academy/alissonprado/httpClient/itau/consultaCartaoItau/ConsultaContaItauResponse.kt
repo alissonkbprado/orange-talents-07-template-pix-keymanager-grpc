@@ -1,4 +1,4 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
+package br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau
 
 import br.com.zup.academy.alissonprado.httpClient.InstituicaoResponse
 import br.com.zup.academy.alissonprado.model.ContaAssociada
@@ -19,7 +19,7 @@ data class ConsultaContaItauResponse(
             instituicaoIspb = this.instituicao.ispb,
             nomeDoTitular = this.titular.nome,
             agencia = this.agencia,
-            cpfDoTitular = this.titular.cpf,
+            documentoDoTitular = this.titular.cpf,
             numeroDaConta = this.numero,
         )
     }

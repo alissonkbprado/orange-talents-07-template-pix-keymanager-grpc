@@ -23,7 +23,7 @@ class ContaAssociada(
     @field:NotBlank
     @Column(nullable = false)
     @Convert(converter = CryptoConverter::class)
-    val cpfDoTitular: String,
+    val documentoDoTitular: String,
 
     @field:NotBlank
     @Column(nullable = false)

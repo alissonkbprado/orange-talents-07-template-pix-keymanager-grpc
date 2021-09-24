@@ -1,8 +1,6 @@
-package br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau
+package br.com.zup.academy.alissonprado.httpClient.itau.consultaClienteItau
 
 import br.com.zup.academy.alissonprado.Exception.IdNaoEncontradoItauException
-import br.com.zup.academy.alissonprado.httpClient.consultaClienteItau.ConsultaClienteItauClient
-import br.com.zup.academy.alissonprado.httpClient.consultaClienteItau.ConsultaClienteItauResponse
 import br.com.zup.academy.alissonprado.model.ChavePix
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus

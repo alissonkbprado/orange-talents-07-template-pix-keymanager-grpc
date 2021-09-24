@@ -2,10 +2,12 @@ package br.com.zup.academy.alissonprado.endpoint.registraPix
 
 import br.com.zup.academy.alissonprado.Exception.ChaveCadastradaException
 import br.com.zup.academy.alissonprado.RegistraPixRequest
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaCartaoItauService
+import br.com.zup.academy.alissonprado.httpClient.bcb.cadastraChavePixBcb.CadastraChavePixBcbService
+import br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau.ConsultaCartaoItauService
 import br.com.zup.academy.alissonprado.model.ChavePix
 import br.com.zup.academy.alissonprado.model.TipoChave
 import br.com.zup.academy.alissonprado.model.TipoConta
+import br.com.zup.academy.alissonprado.model.TipoPessoa
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
 import io.micronaut.validation.Validated
 import jakarta.inject.Singleton
@@ -17,7 +19,8 @@ import javax.validation.Valid
 @Singleton
 class RegistraPixService(
     val repository: ChavePixRepository,
-    val consultaCartaoItauService: ConsultaCartaoItauService
+    val consultaCartaoItauService: ConsultaCartaoItauService,
+    val cadastraChavePixBcbService: CadastraChavePixBcbService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -39,27 +42,30 @@ class RegistraPixService(
         if (repository.existsByChave(request.chave)) {
             logger.info("Chave Pix register attempted fail (ALREADY_EXISTS): ${request.idClienteBanco.replaceAfter("-","***")} ${request.chave}")
             throw ChaveCadastradaException()
-
         }
 
         // Realiza consulta HTTP GET a ERP do Itau
-        val httpResponse = consultaCartaoItauService.Consulta(request)
-
-        var chave = registraPixDto.chave
-        if (registraPixDto.tipoChave == TipoChave.ALEATORIA)
-            chave = UUID.randomUUID().toString()
+        val consultaContaItauResponse = consultaCartaoItauService.consulta(request)
 
         val chavePix = ChavePix(
             idClienteBanco = registraPixDto.idClienteBanco,
             tipoChave = registraPixDto.tipoChave,
             tipoConta = registraPixDto.tipoConta,
-            chave = chave,
-            conta = httpResponse.body().toModel()
+            tipoPessoa = TipoPessoa.PESSOA_FISICA,
+            chave = registraPixDto.chave,
+            conta = consultaContaItauResponse.toModel()
         )
+
+        // Realiza requisição HTTP POST e cadastra Chave Pix no Banco Central
+        val createPixKeyResponse = cadastraChavePixBcbService.cadastra(chavePix)
+
+        // Se a chave for do tipo aleatoria, adicionamos a chave recebida pelo Banco Central
+        if (chavePix.tipoChave == TipoChave.ALEATORIA)
+            chavePix.adicionaChaveBancoCentral(createPixKeyResponse.key)
 
         repository.save(chavePix)
 
-        logger.info("Chave Pix registered: ${chavePix.idPix.replaceAfter("-", "***")}")
+        logger.info("Chave Pix registered: ${chavePix.chave.replaceAfter("-", "***")}")
 
         return chavePix.idPix
     }

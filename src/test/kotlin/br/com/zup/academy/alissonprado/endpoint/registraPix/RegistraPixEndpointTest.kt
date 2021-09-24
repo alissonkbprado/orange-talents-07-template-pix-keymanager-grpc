@@ -1,14 +1,20 @@
-package br.com.zup.academy.alissonprado.endpoint.resgistraPix
+package br.com.zup.academy.alissonprado.endpoint.registraPix
 
-import br.com.zup.academy.alissonprado.*
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauClient
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.ConsultaContaItauResponse
+import br.com.zup.academy.alissonprado.RegistraPixRequest
+import br.com.zup.academy.alissonprado.RegistraPixServiceGrpc
+import br.com.zup.academy.alissonprado.TipoChave
+import br.com.zup.academy.alissonprado.TipoConta
 import br.com.zup.academy.alissonprado.httpClient.InstituicaoResponse
-import br.com.zup.academy.alissonprado.httpClient.consultaCartaoItau.TitularResponse
+import br.com.zup.academy.alissonprado.httpClient.bcb.cadastraChavePixBcb.CadastraChavePixBcbClient
+import br.com.zup.academy.alissonprado.httpClient.bcb.cadastraChavePixBcb.dto.*
+import br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau.ConsultaContaItauClient
+import br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau.ConsultaContaItauResponse
+import br.com.zup.academy.alissonprado.httpClient.itau.consultaCartaoItau.TitularResponse
 import br.com.zup.academy.alissonprado.model.ChavePix
 import br.com.zup.academy.alissonprado.model.ContaAssociada
 import br.com.zup.academy.alissonprado.model.TipoChave.EMAIL
 import br.com.zup.academy.alissonprado.model.TipoConta.CONTA_CORRENTE
+import br.com.zup.academy.alissonprado.model.TipoPessoa.PESSOA_FISICA
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -26,8 +32,11 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.ArgumentMatcher
 import org.mockito.Mockito
-import org.mockito.Mockito.`when`
+import org.mockito.internal.matchers.InstanceOf
+import org.mockito.internal.progress.ThreadSafeMockingProgress
+import java.time.LocalDateTime
 import java.util.*
 
 @MicronautTest(transactional = false)
@@ -36,8 +45,11 @@ internal class RegistraPixEndpointTest(
     val repository: ChavePixRepository
 ) {
 
-    @field:Inject
-    lateinit var itauCliente: ConsultaContaItauClient
+    @Inject
+    lateinit var itauClient: ConsultaContaItauClient
+
+    @Inject
+    lateinit var bcbClient: CadastraChavePixBcbClient
 
     companion object {
         val CLIENTE_ID = UUID.randomUUID().toString()
@@ -47,12 +59,26 @@ internal class RegistraPixEndpointTest(
     @BeforeEach
     fun setUp() {
         repository.deleteAll()
+
+
     }
 
     @Test
     fun `deve cadastrar chave no banco`() {
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
-            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+        Mockito.`when`(
+            itauClient.consultaConta(
+                clienteId = CLIENTE_ID,
+                tipoConta = "CONTA_CORRENTE"
+            )
+        ).thenReturn(
+            HttpResponse.ok(dadosDaContaResponse())
+        )
+
+        Mockito.`when`(
+            bcbClient.cadastra(dadosCreatePixKeyRequest())
+        ).thenReturn(
+            HttpResponse.ok(dadosCreatePixKeyResponse())
+        )
 
         // Realiza a requisição e guarda o retorno
         val response = grpcClient.registraPix(
@@ -80,8 +106,20 @@ internal class RegistraPixEndpointTest(
 
     @Test
     fun `deve cadastrar chave no banco com chave aleatoria e ignorar campo chave`() {
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
-            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+        Mockito.`when`(
+            itauClient.consultaConta(
+                clienteId = CLIENTE_ID,
+                tipoConta = "CONTA_CORRENTE"
+            )
+        ).thenReturn(
+            HttpResponse.ok(dadosDaContaResponse())
+        )
+
+        Mockito.`when`(
+            bcbClient.cadastra(dadosCreatePixKeyRequestChaveAleatoria())
+        ).thenReturn(
+            HttpResponse.ok(dadosCreatePixKeyResponseChaveAleatoria())
+        )
 
         // Realiza a requisição e guarda o retorno
         val response = grpcClient.registraPix(
@@ -109,12 +147,13 @@ internal class RegistraPixEndpointTest(
             idClienteBanco = CLIENTE_ID,
             tipoConta = CONTA_CORRENTE,
             tipoChave = EMAIL,
+            tipoPessoa = PESSOA_FISICA,
             chave = CHAVE,
             conta = ContaAssociada(
                 instituicaoNome = "Itau",
                 instituicaoIspb = "265874",
                 nomeDoTitular = "Teste",
-                cpfDoTitular = "00000000000",
+                documentoDoTitular = "00000000000",
                 agencia = "0001",
                 numeroDaConta = "1234"
             )
@@ -122,8 +161,8 @@ internal class RegistraPixEndpointTest(
 
         repository.save(chavePix)
 
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
-            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+//        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
+//            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
         // Realiza a requisição e guarda o erro
         val error = assertThrows<StatusRuntimeException> {
@@ -146,7 +185,7 @@ internal class RegistraPixEndpointTest(
 
     @Test
     fun `nao deve cadastrar se nao estiver cadastrado no ERP Itau`() {
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
+        Mockito.`when`(itauClient.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.notFound())
 
         // Realiza a requisição e guarda o erro
@@ -173,7 +212,7 @@ internal class RegistraPixEndpointTest(
 
     @Test
     fun `nao deve cadastrar se sistema ERP Itau estiver indisponivel`() {
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
+        Mockito.`when`(itauClient.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
             .thenThrow(HttpClientException("Connect Error: Connection refused:"))
 
         // Realiza a requisição e guarda o erro
@@ -192,7 +231,7 @@ internal class RegistraPixEndpointTest(
         with(error) {
             assertEquals(Status.INTERNAL.code, status.code)
             assertEquals(
-                "Não foi possível consultar os dados do cartão com a instituição financeira.",
+                "Não foi possível consultar os dados do cartão com o Itau.",
                 status.description
             )
         }
@@ -200,7 +239,7 @@ internal class RegistraPixEndpointTest(
 
     @Test
     fun `nao deve cadastrar se tipoChave = CPF e CPF for diferente do cadastrado na ERP Itau`() {
-        `when`(itauCliente.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
+        Mockito.`when`(itauClient.consultaConta(clienteId = CLIENTE_ID, tipoConta = "CONTA_CORRENTE"))
             .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
         // Realiza a requisição e guarda o erro
@@ -218,7 +257,10 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.FAILED_PRECONDITION.code, status.code)
-            assertEquals("Valor de CPF da chave diferente do que está cadastrado na instituição financeira", status.description)
+            assertEquals(
+                "Valor de CPF da chave diferente do que está cadastrado na instituição financeira",
+                status.description
+            )
         }
     }
 
@@ -282,7 +324,10 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA", status.description)
+            assertEquals(
+                "No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA",
+                status.description
+            )
         }
     }
 
@@ -303,7 +348,10 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA", status.description)
+            assertEquals(
+                "No enum constant br.com.zup.academy.alissonprado.model.TipoConta.CONTA_DESCONHECIDA",
+                status.description
+            )
         }
     }
 
@@ -323,7 +371,10 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA", status.description)
+            assertEquals(
+                "No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA",
+                status.description
+            )
         }
     }
 
@@ -347,7 +398,10 @@ internal class RegistraPixEndpointTest(
         // Validações
         with(error) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA", status.description)
+            assertEquals(
+                "No enum constant br.com.zup.academy.alissonprado.model.TipoChave.CHAVE_DESCONHECIDA",
+                status.description
+            )
         }
     }
 
@@ -507,8 +561,90 @@ internal class RegistraPixEndpointTest(
             instituicao = InstituicaoResponse("UNIBANCO ITAU SA", "6546734"),
             agencia = "1685",
             numero = "0001",
-            titular = TitularResponse(id = CLIENTE_ID,nome = "Teste",cpf =  "00011122233")
+            titular = TitularResponse(id = CLIENTE_ID, nome = "Teste", cpf = "00011122233")
         )
+    }
+
+    private fun dadosCreatePixKeyRequest(): CreatePixKeyRequest {
+
+        reportMatcher(InstanceOf(CreatePixKeyRequest::class.java, "<any createPixKeyRequest>"))
+
+        return CreatePixKeyRequest(
+            keyType = KeyType.EMAIL,
+            key = "teste@teste.com",
+            bankAccount = BankAccount(
+                participant = "123456",
+                branch = "1234",
+                accountNumber = "123456",
+                accountType = AccountType.CACC
+            ),
+            owner = Owner(
+                type = TypeOwner.NATURAL_PERSON,
+                name = "Teste da Silva",
+                taxIdNumber = "00000000000"
+            ))
+    }
+
+    private fun dadosCreatePixKeyResponse(): CreatePixKeyResponse {
+        return CreatePixKeyResponse(
+            keyType = KeyType.EMAIL,
+            key = "teste@teste.com",
+            bankAccount = BankAccount(
+                participant = "123456",
+                branch = "1234",
+                accountNumber = "123456",
+                accountType = AccountType.CACC
+            ),
+            owner = Owner(
+                type = TypeOwner.NATURAL_PERSON,
+                name = "Teste da Silva",
+                taxIdNumber = "00000000000"
+            ),
+            createdAt = LocalDateTime.now())
+    }
+
+    private fun dadosCreatePixKeyRequestChaveAleatoria(): CreatePixKeyRequest {
+
+        reportMatcher(InstanceOf(CreatePixKeyRequest::class.java, "<any createPixKeyRequest>"))
+
+        return CreatePixKeyRequest(
+            keyType = KeyType.RANDOM,
+            key = "teste@teste.com",
+            bankAccount = BankAccount(
+                participant = "123456",
+                branch = "1234",
+                accountNumber = "123456",
+                accountType = AccountType.CACC
+            ),
+            owner = Owner(
+                type = TypeOwner.NATURAL_PERSON,
+                name = "Teste da Silva",
+                taxIdNumber = "00000000000"
+            ))
+    }
+
+    private fun dadosCreatePixKeyResponseChaveAleatoria(): CreatePixKeyResponse {
+        return CreatePixKeyResponse(
+            keyType = KeyType.RANDOM,
+            key = UUID.randomUUID().toString(),
+            bankAccount = BankAccount(
+                participant = "123456",
+                branch = "1234",
+                accountNumber = "123456",
+                accountType = AccountType.CACC
+            ),
+            owner = Owner(
+                type = TypeOwner.NATURAL_PERSON,
+                name = "Teste da Silva",
+                taxIdNumber = "00000000000"
+            ),
+            createdAt = LocalDateTime.now())
+    }
+
+
+    // cópia de como o Mockito cria os métodos .any() de outros tipos
+    private fun reportMatcher(matcher: ArgumentMatcher<*>) {
+        ThreadSafeMockingProgress.mockingProgress().argumentMatcherStorage.reportMatcher(matcher)
     }
 
 
@@ -516,6 +652,12 @@ internal class RegistraPixEndpointTest(
     fun consultaContaClienteItauMock(): ConsultaContaItauClient {
         return Mockito.mock(ConsultaContaItauClient::class.java)
     }
+
+    @MockBean(CadastraChavePixBcbClient::class)
+    fun cadastraChaveBcbMock(): CadastraChavePixBcbClient {
+        return Mockito.mock(CadastraChavePixBcbClient::class.java)
+    }
+
 }
 
 @Factory

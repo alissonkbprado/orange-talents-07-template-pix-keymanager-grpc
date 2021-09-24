@@ -45,6 +45,12 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is ChaveNaoPertenceAoUsuarioException -> Status.NOT_FOUND
                     .withCause(ex)
                     .withDescription("Chave Pix não encontrada ou não pertence ao usuario")
+                is ChavePixJaRegistradaBCBException -> Status.ALREADY_EXISTS
+                    .withCause(ex)
+                    .withDescription(ex.message)
+                is ChavePixNaoEncontradaBCBException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription(ex.message)
                 is StatusRuntimeException -> Status.INVALID_ARGUMENT
                     .withCause(ex)
                     .withDescription(ex.message)

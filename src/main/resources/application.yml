@@ -27,7 +27,9 @@ logger:
     io.micronaut.http.client: DEBUG
 
 # ===> API REST
-api_erp_itau: ${API_ERP_ITAU:`http://localhost:9091/api/v1/clientes`}
+api_erp_itau: ${API_ERP_ITAU:`http://localhost:9091`}
+#api_erp_itau: ${API_ERP_ITAU:`http://localhost:9091/api/v1/clientes`}
+api_BCB: ${API_BCB:`http://localhost:8082`}
 
 # ===> Chave de Encriptacao
 encryption_key: ${ENCRYPTION_KEY:(4D6Z.qGUWofWm}PxgOhdkQPuA|Y[r!9}
