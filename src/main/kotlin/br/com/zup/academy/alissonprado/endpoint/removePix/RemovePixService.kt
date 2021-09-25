@@ -1,6 +1,6 @@
 package br.com.zup.academy.alissonprado.endpoint.removePix
 
-import br.com.zup.academy.alissonprado.Exception.ChaveNaoEncontradaException
+import br.com.zup.academy.alissonprado.Exception.ChavePixNaoEncontradaException
 import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.RemoveChavePixBcbService
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
 import io.micronaut.validation.Validated
@@ -25,7 +25,7 @@ class RemovePixService(
         val chavePix = repository.findByIdPixAndIdClienteBanco(
             idPix = removePixDto.idPix,
             idClienteBanco = removePixDto.idClienteBanco
-        ) ?: throw ChaveNaoEncontradaException()
+        ) ?: throw ChavePixNaoEncontradaException()
 
         removeChavePixBcbService.remove(chavePix)
 

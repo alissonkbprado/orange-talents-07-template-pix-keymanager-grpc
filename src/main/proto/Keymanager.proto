@@ -6,12 +6,18 @@ option java_outer_classname = "KeymanagerGrpc";
 
 package br.com.zup.academy.alissonprado;
 
+import "google/protobuf/timestamp.proto";
+
 service RegistraPixService {
   rpc registraPix (RegistraPixRequest) returns (RegistraPixResponse) {}
 }
 
 service RemovePixService {
   rpc removePix (RemovePixRequest) returns (RemovePixResponse) {}
+}
+
+service PesquisaChavePixService {
+  rpc pesquisaPix (PesquisaChavePixRequest) returns (PesquisaChavePixResponse) {}
 }
 
 message RegistraPixRequest {
@@ -26,12 +32,47 @@ message RegistraPixResponse {
 }
 
 message RemovePixRequest {
-  string    idPix = 1;
-  string    idClienteBanco = 2;
+  string idPix          = 1;
+  string idClienteBanco = 2;
 }
 
 message RemovePixResponse {
   string mensagem = 1;
+}
+
+message PesquisaChavePixRequest {
+  message FiltroPorPixId {
+    string idPix          = 1;
+    string idClienteBanco = 2;
+  }
+
+  oneof filtro {
+    FiltroPorPixId pixId = 1;
+    string         chave = 2;
+  }
+}
+
+message PesquisaChavePixResponse {
+  message ChavePix {
+
+    message ContaInfo {
+      TipoConta tipo          = 1;
+      string    instituicao   = 2;
+      string    nomeDoTitular = 3;
+      string    cpfDoTitular  = 4;
+      string    agencia       = 5;
+      string    numeroDaConta = 6;
+    }
+
+    TipoChave                 tipo     = 1;
+    string                    chave    = 2;
+    ContaInfo                 conta    = 3;
+    google.protobuf.Timestamp criadaEm = 4;
+  }
+
+  string   idPix          = 1;
+  string   idClienteBanco = 2;
+  ChavePix chave          = 3;
 }
 
 enum TipoChave {

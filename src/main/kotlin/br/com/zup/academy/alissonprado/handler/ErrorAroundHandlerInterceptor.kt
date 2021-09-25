@@ -33,7 +33,7 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is ChaveCadastradaException -> Status.ALREADY_EXISTS
                     .withCause(ex)
                     .withDescription("Valor de chave informado já está registrado")
-                is ChaveNaoEncontradaException -> Status.NOT_FOUND
+                is ChavePixNaoEncontradaException -> Status.NOT_FOUND
                     .withCause(ex)
                     .withDescription("Chave Pix não encontrada")
                 is IdNaoEncontradoItauException -> Status.FAILED_PRECONDITION

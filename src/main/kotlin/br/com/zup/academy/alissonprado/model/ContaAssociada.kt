@@ -14,7 +14,7 @@ class ContaAssociada(
 
     @field:NotBlank
     @Column(nullable = false)
-    val instituicaoIspb: String,
+    val instituicaoIspb: String?,
 
     @field:NotBlank
     @Column(nullable = false)

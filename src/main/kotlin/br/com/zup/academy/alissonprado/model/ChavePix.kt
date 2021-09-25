@@ -47,6 +47,11 @@ class ChavePix(
     @Column(nullable = false)
     val criadaEm: LocalDateTime = LocalDateTime.now()
 
+    /**
+     * Verifica se esta chave pertence a este cliente
+     */
+    fun pertenceAo(clienteId: String) = this.idClienteBanco.equals(clienteId)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

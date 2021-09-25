@@ -1,14 +1,12 @@
 package br.com.zup.academy.alissonprado.endpoint.removePix
 
-import br.com.zup.academy.alissonprado.Exception.ChaveNaoEncontradaException
+import br.com.zup.academy.alissonprado.Exception.ChavePixNaoEncontradaException
 import br.com.zup.academy.alissonprado.Exception.ChavePixNaoEncontradaBCBException
-import br.com.zup.academy.alissonprado.httpClient.bcb.cadastraChavePixBcb.CadastraChavePixBcbClient
 import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.RemoveChavePixBcbClient
 import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.dto.RemovePixKeyRequest
 import br.com.zup.academy.alissonprado.httpClient.bcb.removeChavePixBcb.dto.RemovePixKeyResponse
 import br.com.zup.academy.alissonprado.model.*
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.HttpResponseException
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.test.annotation.MockBean
@@ -19,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
-import java.net.ConnectException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -174,7 +171,7 @@ internal class RemovePixServiceTest(
     @Test
     fun `deve dar erro ao tentar remover chave nao cadastrada`() {
 
-        val erro = assertThrows<ChaveNaoEncontradaException> {
+        val erro = assertThrows<ChavePixNaoEncontradaException> {
             service.remove(
                 RemovePixDto(
                     idPix = UUID.randomUUID().toString(),
