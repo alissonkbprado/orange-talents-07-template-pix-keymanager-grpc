@@ -51,6 +51,9 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is ChavePixNaoEncontradaBCBException -> Status.NOT_FOUND
                     .withCause(ex)
                     .withDescription(ex.message)
+                is IdClienteNaoEncontradoException -> Status.NOT_FOUND
+                    .withCause(ex)
+                    .withDescription(ex.message)
                 is StatusRuntimeException -> Status.INVALID_ARGUMENT
                     .withCause(ex)
                     .withDescription(ex.message)

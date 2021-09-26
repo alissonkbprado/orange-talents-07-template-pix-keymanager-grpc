@@ -1,6 +1,6 @@
 package br.com.zup.academy.alissonprado.Exception
 
-class ChavePixNaoEncontradaException : Exception(){
+class IdClienteNaoEncontradoException : Exception(){
     override val message: String?
-        get() = "Chave Pix não encontrada"
+        get() = "Id do Cliente não encontrado"
 }

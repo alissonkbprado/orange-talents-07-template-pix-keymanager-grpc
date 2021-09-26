@@ -12,12 +12,11 @@ import javax.validation.constraints.NotBlank
 
 
 @Singleton
-class ListaTodasChavesService(
+class ListaChavesService(
     private val repository: ChavePixRepository
 ) {
 
     fun pesquisa(@NotBlank @ValidaUUID idClientBanco: String?): List<ListaChavesPixResponse.ChavePix> {
-
         val chavesPix = repository.findByIdClienteBanco(idClientBanco).map { chavePix ->
             ListaChavesPixResponse.ChavePix.newBuilder()
                 .setIdPix(chavePix.idPix)

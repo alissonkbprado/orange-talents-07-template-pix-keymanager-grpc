@@ -20,6 +20,10 @@ service PesquisaChavePixService {
   rpc pesquisaPix (PesquisaChavePixRequest) returns (PesquisaChavePixResponse) {}
 }
 
+service ListaChavesPixService {
+  rpc listaChavesPix (ListaChavesPixRequest) returns (ListaChavesPixResponse) {}
+}
+
 message RegistraPixRequest {
   string    idClienteBanco = 1;
   TipoConta tipoConta      = 2;
@@ -73,6 +77,23 @@ message PesquisaChavePixResponse {
   string   idPix          = 1;
   string   idClienteBanco = 2;
   ChavePix chave          = 3;
+}
+
+message ListaChavesPixRequest {
+  string idClienteBanco = 1;
+}
+
+message ListaChavesPixResponse {
+  string            idClienteBanco = 1;
+  repeated ChavePix chaves         = 2;
+
+  message ChavePix{
+    string                    idPix     = 1;
+    TipoChave                 tipoChave = 2;
+    string                    chave     = 3;
+    TipoConta                 tipoConta = 4;
+    google.protobuf.Timestamp criadaEm  = 5;
+  }
 }
 
 enum TipoChave {
