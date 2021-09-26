@@ -71,7 +71,7 @@ internal class RemovePixServiceTest(
             HttpResponse.ok(
                 RemovePixKeyResponse(
                     key = chavePix.chave,
-                    participant = chavePix.conta.instituicaoIspb,
+                    participant = chavePix.conta.instituicaoIspb!!,
                     deletedAt = LocalDateTime.now().toString()
                 )
             )
@@ -180,7 +180,7 @@ internal class RemovePixServiceTest(
             )
         }
 
-        assertEquals(null, erro.message)
+        assertEquals("Chave Pix não encontrada", erro.message)
     }
 
     @Test

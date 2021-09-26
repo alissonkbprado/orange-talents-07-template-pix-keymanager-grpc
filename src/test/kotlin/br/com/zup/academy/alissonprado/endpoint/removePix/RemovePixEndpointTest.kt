@@ -43,21 +43,7 @@ internal class RemovePixEndpointTest(
     @field:Inject
     lateinit var bcbClient: RemoveChavePixBcbClient
 
-    var chavePix = ChavePix(
-        idClienteBanco = RemovePixServiceTest.CLIENTE_ID,
-        tipoConta = TipoConta.CONTA_CORRENTE,
-        tipoChave = TipoChave.EMAIL,
-        tipoPessoa = TipoPessoa.PESSOA_FISICA,
-        chave = RemovePixServiceTest.CHAVE,
-        conta = ContaAssociada(
-            instituicaoNome = "Itau",
-            instituicaoIspb = "265874",
-            nomeDoTitular = "Teste",
-            documentoDoTitular = "00000000000",
-            agencia = "0001",
-            numeroDaConta = "1234"
-        )
-    )
+    lateinit var chavePix: ChavePix
 
     @BeforeEach
     fun setUp() {
@@ -96,7 +82,7 @@ internal class RemovePixEndpointTest(
             HttpResponse.ok(
                 RemovePixKeyResponse(
                     key = chavePix.chave,
-                    participant = chavePix.conta.instituicaoIspb,
+                    participant = chavePix.conta.instituicaoIspb!!,
                     deletedAt = LocalDateTime.now().toString()
                 )
             )

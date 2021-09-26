@@ -3,6 +3,7 @@ package br.com.zup.academy.alissonprado.httpClient.bcb.pesquisaChavePixBcb.filtr
 import br.com.zup.academy.alissonprado.Exception.ChavePixNaoEncontradaException
 import br.com.zup.academy.alissonprado.endpoint.pesquisaPix.ChavePixInfo
 import br.com.zup.academy.alissonprado.httpClient.bcb.pesquisaChavePixBcb.PesquisaChavePixBcbClient
+import br.com.zup.academy.alissonprado.model.ChavePix
 import br.com.zup.academy.alissonprado.repository.ChavePixRepository
 import br.com.zup.academy.alissonprado.validation.ValidaUUID
 import io.micronaut.core.annotation.Introspected
@@ -15,15 +16,15 @@ import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
 @Introspected
-sealed class Filtro() {
+sealed class Filtro {
 
     abstract fun filtra(repository: ChavePixRepository, bcbClient: PesquisaChavePixBcbClient): ChavePixInfo
 
     @Introspected
     data class PorPixId(
-        @field:NotBlank @field:ValidaUUID val clienteId: String, // 1
+        @field:NotBlank @field:ValidaUUID val clienteId: String,
         @field:NotBlank @field:ValidaUUID val pixId: String,
-    ) : Filtro() { // 1
+    ) : Filtro() {
 
         override fun filtra(repository: ChavePixRepository, bcbClient: PesquisaChavePixBcbClient): ChavePixInfo {
 
@@ -37,21 +38,23 @@ sealed class Filtro() {
     }
 
     @Introspected
-    data class PorChave(@field:NotBlank @field:Size(max = 77) val chave: String) : Filtro() { // 1
+    data class PorChave(@field:NotBlank @field:Size(max = 77) val chave: String) : Filtro() {
 
         private val LOGGER = LoggerFactory.getLogger(this::class.java)
 
         override fun filtra(repository: ChavePixRepository, bcbClient: PesquisaChavePixBcbClient): ChavePixInfo {
+
+            val chavePix = repository.findByChave(chave)
 
             return repository.findByChave(chave)
                 .map(ChavePixInfo::of)
                 .orElseGet {
                     LOGGER.info("Consultando chave Pix '$chave' no Banco Central do Brasil (BCB)")
 
-                    val response = bcbClient.pesquisaPorChavePix(chave) // 1
-                    when (response.status) { // 1
-                        HttpStatus.OK -> response.body()?.toModel() // 1
-                        else -> throw ChavePixNaoEncontradaException() // 1
+                    val response = bcbClient.pesquisaPorChavePix(chave)
+                    when (response.status) {
+                        HttpStatus.OK -> response.body()?.toModel()
+                        else -> throw ChavePixNaoEncontradaException()
                     }
                 }
         }

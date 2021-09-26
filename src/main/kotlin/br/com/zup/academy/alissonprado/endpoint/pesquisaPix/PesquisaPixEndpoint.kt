@@ -33,9 +33,9 @@ class PesquisaPixEndpoint(
     }
 }
 
-private fun PesquisaChavePixRequest.toModel(validator: Validator): Filtro {
+fun PesquisaChavePixRequest.toModel(validator: Validator): Filtro {
 
-    val filtro = when(filtroCase) {
+    val filtro = when(filtroCase!!) {
         PIXID -> pixId.let {
             Filtro.PorPixId(clienteId = it.idClienteBanco, pixId = it.idPix)
         }
@@ -52,8 +52,6 @@ private fun PesquisaChavePixRequest.toModel(validator: Validator): Filtro {
     if (violations.isNotEmpty()) {
         throw ConstraintViolationException(violations)
     }
-
-
 
     return filtro
 }

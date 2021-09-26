@@ -13,13 +13,13 @@ class CarregaChavePixResponseConverter {
         return PesquisaChavePixResponse.newBuilder()
             .setIdClienteBanco(chaveInfo.clienteId ?: "") // Protobuf usa "" como default value para String
             .setIdPix(chaveInfo.pixId ?: "") // Protobuf usa "" como default value para String
-            .setChave(PesquisaChavePixResponse.ChavePix // 1
+            .setChave(PesquisaChavePixResponse.ChavePix
                 .newBuilder()
-                .setTipo(TipoChave.valueOf(chaveInfo.tipo.name)) // 2
+                .setTipo(TipoChave.valueOf(chaveInfo.tipo.name))
                 .setChave(chaveInfo.chave)
-                .setConta(PesquisaChavePixResponse.ChavePix.ContaInfo.newBuilder() // 1
-                    .setTipo(TipoConta.valueOf(chaveInfo.tipoDeConta.name)) // 2
-                    .setInstituicao(chaveInfo.conta.instituicaoNome) // 1 (Conta)
+                .setConta(PesquisaChavePixResponse.ChavePix.ContaInfo.newBuilder()
+                    .setTipo(TipoConta.valueOf(chaveInfo.tipoDeConta.name))
+                    .setInstituicao(chaveInfo.conta.instituicaoNome)
                     .setNomeDoTitular(chaveInfo.conta.nomeDoTitular)
                     .setCpfDoTitular(chaveInfo.conta.documentoDoTitular)
                     .setAgencia(chaveInfo.conta.agencia)
