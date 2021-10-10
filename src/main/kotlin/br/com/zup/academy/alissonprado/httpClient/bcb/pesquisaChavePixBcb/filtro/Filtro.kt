@@ -30,7 +30,7 @@ sealed class Filtro {
 
             val chavePix = repository.findByIdPix(pixId)
 
-            return repository.findById(chavePix?.id)
+            return repository.findById(chavePix?.id ?: 0)
                 .filter { it.pertenceAo(clienteId) }
                 .map(ChavePixInfo::of)
                 .orElseThrow { ChavePixNaoEncontradaException() }

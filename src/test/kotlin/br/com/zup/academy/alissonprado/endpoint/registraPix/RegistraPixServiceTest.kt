@@ -38,8 +38,6 @@ import java.util.*
 
 @MicronautTest(transactional = false)
 internal class RegistraPixServiceTest(
-//    val consultaCartaoItauService: ConsultaCartaoItauService,
-//    val cadastraChavePixBcbService: CadastraChavePixBcbService,
     val registraPixService: RegistraPixService,
     val repository: ChavePixRepository
 ) {
@@ -64,25 +62,25 @@ internal class RegistraPixServiceTest(
         repository.deleteAll()
 
         chavePix = ChavePix(
-            idClienteBanco = RemovePixServiceTest.CLIENTE_ID,
+            idClienteBanco = CLIENTE_ID,
             tipoConta = br.com.zup.academy.alissonprado.model.TipoConta.CONTA_CORRENTE,
             tipoChave = br.com.zup.academy.alissonprado.model.TipoChave.EMAIL,
             tipoPessoa = TipoPessoa.PESSOA_FISICA,
-            chave = RemovePixServiceTest.CHAVE,
+            chave = CHAVE,
             conta = ContaAssociada(
                 instituicaoNome = "Itau",
-                instituicaoIspb = "265874",
-                nomeDoTitular = "Teste",
+                instituicaoIspb = "123456",
+                nomeDoTitular = "Teste da Silva",
                 documentoDoTitular = "00000000000",
-                agencia = "0001",
-                numeroDaConta = "1234"
+                agencia = "1234",
+                numeroDaConta = "123456"
             )
         )
 
         registraPixRequest = RegistraPixRequest.newBuilder()
             .setIdClienteBanco(CLIENTE_ID)
             .setTipoChave(TipoChave.EMAIL)
-            .setChave("teste@teste.com")
+            .setChave(CHAVE)
             .setTipoConta(TipoConta.CONTA_CORRENTE)
             .build()
 
@@ -128,7 +126,7 @@ internal class RegistraPixServiceTest(
     private fun dadosDaContaResponse(): ConsultaContaItauResponse {
         return ConsultaContaItauResponse(
             tipo = "CONTA_CORRENTE",
-            instituicao = InstituicaoResponse("UNIBANCO ITAU SA", "6546734"),
+            instituicao = InstituicaoResponse(nome = "UNIBANCO ITAU SA", ispb = "6546734"),
             agencia = "1685",
             numero = "0001",
             titular = TitularResponse(id = RegistraPixEndpointTest.CLIENTE_ID, nome = "Teste", cpf = "00011122233")
@@ -137,11 +135,9 @@ internal class RegistraPixServiceTest(
 
     private fun dadosCreatePixKeyRequest(): CreatePixKeyRequest {
 
-        reportMatcher(InstanceOf(CreatePixKeyRequest::class.java, "<any createPixKeyRequest>"))
-
         return CreatePixKeyRequest(
             keyType = KeyType.EMAIL,
-            key = "teste@teste.com",
+            key = CHAVE,
             bankAccount = BankAccount(
                 participant = "123456",
                 branch = "1234",
@@ -156,9 +152,10 @@ internal class RegistraPixServiceTest(
     }
 
     private fun dadosCreatePixKeyResponse(): CreatePixKeyResponse {
+
         return CreatePixKeyResponse(
             keyType = KeyType.EMAIL,
-            key = "teste@teste.com",
+            key = CHAVE,
             bankAccount = BankAccount(
                 participant = "123456",
                 branch = "1234",
@@ -171,11 +168,6 @@ internal class RegistraPixServiceTest(
                 taxIdNumber = "00000000000"
             ),
             createdAt = LocalDateTime.now())
-    }
-
-    // cópia de como o Mockito cria os métodos .any() de outros tipos
-    private fun reportMatcher(matcher: ArgumentMatcher<*>) {
-        ThreadSafeMockingProgress.mockingProgress().argumentMatcherStorage.reportMatcher(matcher)
     }
 }
 

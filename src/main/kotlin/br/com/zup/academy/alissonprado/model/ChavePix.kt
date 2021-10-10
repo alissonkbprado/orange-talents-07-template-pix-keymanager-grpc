@@ -1,7 +1,6 @@
 package br.com.zup.academy.alissonprado.model
 
 import br.com.zup.academy.alissonprado.validation.ValidaUUID
-import br.com.zup.academy.alissonprado.converter.CryptoConverter
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*

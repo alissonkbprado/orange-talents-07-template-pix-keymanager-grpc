@@ -5,4 +5,5 @@ class ChavePixJaRegistradaBCBException : Exception() {
         get() = "Chave Pix já registrada no Banco Central"
 
 
+
 }
